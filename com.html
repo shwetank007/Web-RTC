@@ -1,0 +1,152 @@
+<html>
+<head><title>Working on screen</title>
+<script>
+//(function(){
+  var localStream, localPeerConnection, remotePeerConnection;
+
+    var localVideo = document.getElementById("localVideo");
+    var remoteVideo = document.getElementById("remoteVideo");
+
+    var startButton = document.getElementById("startButton");
+    var callButton = document.getElementById("callButton");
+    var hangupButton = document.getElementById("hangupButton");
+    /*startButton.disabled = false;
+    callButton.disabled = true;
+    hangupButton.disabled = true;
+    startButton.onclick = start();
+    callButton.onclick = call();
+    hangupButton.onclick = hangup();*/
+
+    function trace(text) {
+      console.log((performance.now() / 1000).toFixed(3) + ": " + text);
+    }
+
+    /*function gotStream(stream){
+      trace("Received local stream");
+      localVideo.src = URL.createObjectURL(stream);
+      localStream = stream;
+      //callButton.disabled = false;
+    }*/
+
+    function start() {
+      trace("Requesting local stream");
+      /*startButton.disabled = true;
+      getUserMedia({audio:true, video:true}, gotStream,
+        function(error) {
+          trace("getUserMedia error: ", error);
+        });*/
+      var mediaOptions = { audio: true, video: true };
+
+      if (!navigator.getUserMedia) {
+          navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+      }
+
+      if (!navigator.getUserMedia){
+        return alert('getUserMedia not supported in this browser.');
+      }
+
+      navigator.getUserMedia(mediaOptions, success, function(e) {
+        console.log(e);
+      });
+
+        function success(stream){
+          var video = document.querySelector("#localVideo");
+          //var audio = document.querySelector("#slutty");
+          video.src = window.URL.createObjectURL(stream);
+          window.stream = stream;
+          //audio.src = stream;
+        }
+    }
+
+    function call() {
+      /*callButton.disabled = true;
+      hangupButton.disabled = false;*/
+      trace("Starting call");
+
+      if (window.stream.getVideoTracks().length > 0) {
+        trace('Using video device: ' + window.stream.getVideoTracks()[0].label);
+      }
+      /*if (localStream.getAudioTracks().length > 0) {
+        trace('Using audio device: ' + localStream.getAudioTracks()[0].label);
+      }*/
+
+      var servers = null;
+
+      localPeerConnection = new webkitRTCPeerConnection(servers);
+      trace("Created local peer connection object localPeerConnection");
+      localPeerConnection.onicecandidate = gotLocalIceCandidate;
+
+      remotePeerConnection = new webkitRTCPeerConnection(servers);
+      trace("Created remote peer connection object remotePeerConnection");
+      remotePeerConnection.onicecandidate = gotRemoteIceCandidate;
+      remotePeerConnection.onaddstream = gotRemoteStream;
+
+      localPeerConnection.addStream(window.stream);
+      trace("Added localStream to localPeerConnection");
+      localPeerConnection.createOffer(gotLocalDescription,handleError);
+    }
+
+    function gotLocalDescription(description){
+      localPeerConnection.setLocalDescription(description);
+      trace("Offer from localPeerConnection: \n" + description.sdp);
+      remotePeerConnection.setRemoteDescription(description);
+      remotePeerConnection.createAnswer(gotRemoteDescription,handleError);
+    }
+
+    function gotRemoteDescription(description){
+      remotePeerConnection.setLocalDescription(description);
+      trace("Answer from remotePeerConnection: \n" + description.sdp);
+      localPeerConnection.setRemoteDescription(description);
+    }
+
+    function hangup() {
+      trace("Ending call");
+      localPeerConnection.close();
+      remotePeerConnection.close();
+      localPeerConnection = null;
+      remotePeerConnection = null;
+      /*hangupButton.disabled = true;
+      callButton.disabled = false;*/
+    }
+
+    function gotRemoteStream(e){
+      //if(e){
+        var remoteVideo = document.querySelector("#remoteVideo");
+        remoteVideo.src = window.URL.createObjectURL(e.stream);     
+        trace("Received remote stream");
+    }
+      /*if(!e)
+      {
+        return alert('Bitch');
+      }*/
+    //}
+
+    function gotLocalIceCandidate(e){
+      if (e.candidate) {
+        remotePeerConnection.addIceCandidate(new RTCIceCandidate(e.candidate));
+        trace("Local ICE candidate: \n" + e.candidate.candidate);
+      }
+    }
+
+    function gotRemoteIceCandidate(e){
+      if (e.candidate) {
+        localPeerConnection.addIceCandidate(new RTCIceCandidate(e.candidate));
+        trace("Remote ICE candidate: \n " + e.candidate.candidate);
+      }
+    }
+
+    function handleError(){}
+//})();
+</script>
+</head>
+<body>
+<video id="localVideo" controls autoplay></video>
+<video id="remoteVideo" controls autoplay></video>
+<!--<audio id="slutty" autoplay></audio>-->
+<div>
+  <button id="startButton" onclick="start()">Start</button>
+  <button id="callButton" onclick="call()">Call</button>
+  <button id="hangupButton" onclick="hangup()">Hang Up</button>
+</div>
+</body>
+</html>
