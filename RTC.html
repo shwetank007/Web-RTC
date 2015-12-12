@@ -1,0 +1,82 @@
+<html lang="en-us">
+<meta charset="utf-8">
+<meta name="description" content="WebRTC code samples">
+<meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1">
+<meta itemprop="description" content="Client-side WebRTC code samples">
+<meta itemprop="image" content="../../../images/webrtc-icon-192x192.png">
+<meta itemprop="name" content="WebRTC code samples">
+<meta name="mobile-web-app-capable" content="yes">
+<meta id="theme-color" name="theme-color" content="#ffffff">
+
+	<head><title>WebRTC</title>
+	<script>
+		(function(){
+			var mediaOptions = { audio: true, video: true };
+
+			if (!navigator.getUserMedia) {
+			    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+			}
+
+			if (!navigator.getUserMedia){
+				return alert('getUserMedia not supported in this browser.');
+			}
+
+			navigator.getUserMedia(mediaOptions, success, function(e) {
+				console.log(e);
+			});
+
+			  function success(stream){
+			    var video = document.querySelector("#slut");
+			    var audio = document.querySelector("#slutty");
+			    video.src = window.URL.createObjectURL(stream);
+			    window.stream = stream;
+			    audio.src = stream;
+			  }
+			})();
+	</script>
+	<style>
+		h1{
+			/*margin-top: 100px;
+			*/text-align: center;
+		}
+		h4{
+			text-align: center;
+		}
+		video{
+  			background: #222;	
+		  	width: 100%;
+		}
+		@media screen and (max-width: 650px) {
+		  h1 {
+		    font-size: 24px;
+		  }
+		}
+		.center{
+			margin: 0 auto;
+		}
+
+		@media screen and (max-width: 550px) {
+		  button:active {
+		    background-color: darkRed;
+		  }
+		  h1 {
+		    font-size: 22px;
+		  }
+		}
+
+		@media screen and (max-width: 450px) {
+		  h1 {
+		    font-size: 20px;
+		  }
+		}
+	</style>
+	</head>
+	<body>
+		<div id="container center">
+	  		<h1>Confession Room</h1>
+	  		<h4>Ready to confess your sins</h4>
+			<video id="slut" autoplay></video>
+			<audio id="slutty" autoplay></audio>
+		</div>
+	</body>
+</html>
